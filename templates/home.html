@@ -15,6 +15,16 @@
       <div class="msger-header-title" style="position: relative;width: 100%;">
         <i class="fas fa-comment-alt"></i> Let's Chat...
       </div>
+      <div class="col">
+            <div class="d-inline-flex flex-row w-100 h-100">
+
+                 <div class="msger-header-title" style="position: relative;width: 100%;">
+                    <input type="text" id="userName" style="position: absolute; right: 10px;" placeholder="Enter your Name..."
+                      required
+                      onchange="nameOnChange(event)">
+                 </div>
+            </div>
+        </div>
     </header>
 
     <main class="msger-chat" style="position: relative;width: 100%;">
@@ -38,7 +48,7 @@
     </main>
 
     <form class="msger-inputarea">
-      <input type="text" class="msger-input" id="userInputMessage" placeholder="Enter Your Message...">
+      <input type="text" class="msger-input" id="userInputMessage" placeholder="Enter Your Message..." disabled>
       <button type="submit" class="msger-send-btn" id="sendBtn">Send</button>
     </form>
   </section>
@@ -60,7 +70,18 @@
   var BOT_IMG = "{% static 'img/bot.jpg' %}";
   var PERSON_IMG = "{% static 'img/user.jpg' %}";
   var BOT_NAME = "Bot";
-  var PERSON_NAME = "You";
+
+  // Get the token passed from Django template
+  const token = "{{ user_token }}";
+
+  // Check if token is not already stored in localStorage
+  if (!localStorage.getItem('token')) {
+      localStorage.setItem('token', token);
+  } else {
+      localStorage.clear();
+      localStorage.setItem('token', token);
+      const storedToken = localStorage.getItem('token');
+  }
 
   // JS Functions
 
@@ -70,11 +91,19 @@
 
     var msgText = msgerInput.value;
     if (!msgText) return;
-    PERSON_NAME = "YOU"
+    PERSON_NAME = document.getElementById("userName").value
     appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
     user_message(msgText);
     msgerInput.value = "";
   });
+
+  function nameOnChange(event){
+    if(event.target.value.length>3){
+      document.getElementById('userInputMessage').disabled=false;
+      document.getElementById('userName').disabled=true;
+      document.getElementById('userInputMessage').placeholder = 'Enter your Message...'}
+  }
+
 
   // Append user message on screen
   function appendMessage(name, img, side, text) {
@@ -110,12 +139,6 @@
         </div>
 
         <div class="msg-text">${text}</div>
-        <div>
-            <audio controls autoplay>
-                <source src=${audio_file} type="audio/mpeg">
-                Audio File Not Generated !!
-            </audio>
-        </div>
       </div>
     </div>
   `;
@@ -146,11 +169,13 @@
 
   // Communicate with backend from this function
   function user_message(message) {
-    const username = "You";
+    const username = document.getElementById("userName").value;
     appendType();
+    var user_token = localStorage.getItem('token')
+
     if (username && message) {
       $.post('send_message/',
-              { sender: username, content: message }
+              { sender: username, content: message, user_token: user_token }
               )
        .done(function (data) {
         if (data.status == 200) {

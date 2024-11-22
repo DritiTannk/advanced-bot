@@ -214,3 +214,10 @@
       content: "\01F499";
       /* https://www.htmlsymbols.xyz/musical-symbols */
     }
+
+    .search-bar {
+      width: 10px;
+      height: 10px;
+      background-color: transparent;
+      border: none;
+    }

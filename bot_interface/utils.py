@@ -63,14 +63,10 @@ def favourites_extraction(text):
     doc = nlp(text)
     food_values = [token.text.lower() for token in doc if token.text.lower() in food_tokens]
     tech_values = [token.text.lower() for token in doc if token.text.lower() in tech_tokens]
-    city_values = [token.text.lower() for token in doc if token.text.lower() in city_tokens]
-    design_values = [token.text.lower() for token in doc if token.text.lower() in design_tokens]
 
     fav_meta_data = {
         "food": food_values,
         "technology": tech_values,
-        "city": city_values,
-        "designation": design_values
     }
     return fav_meta_data
 

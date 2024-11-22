@@ -30,7 +30,16 @@ def check_chat_exists(user_obj, user_quest):
     past_chat = (UserChatHistory.objects.filter(user=user_obj, user_msg=user_quest)
                  .order_by('-created_at').first())
 
-    return past_chat
+    return
+
+
+def generate_bot_response(bot_resp_msg):
+    bot_http_rsp_data = json.dumps({'content': bot_resp_msg,
+                                    'status': 200
+                                    })
+    return(bot_http_rsp_data)
+
+
 
 @csrf_exempt
 def send_message(request):
@@ -60,9 +69,9 @@ def send_message(request):
                     user_chat.bot_resp = bot_msg
                     user_chat.save()
 
-                    return HttpResponse(json.dumps({'content': bot_msg,
-                                                    'status': 200
-                                                    }),
+                    bot_http_msg = generate_bot_response(bot_msg)
+
+                    return HttpResponse(bot_http_msg,
                                         content_type='application/json'
                                         )
 
@@ -73,9 +82,9 @@ def send_message(request):
                     user_chat.bot_resp = bot_msg
                     user_chat.save()
 
-                    return HttpResponse(json.dumps({'content': bot_resp,
-                                                    'status': 200
-                                         }),
+                    bot_http_msg = generate_bot_response(bot_resp)
+
+                    return HttpResponse(bot_http_msg,
                                         content_type='application/json'
                                         )
 
@@ -100,8 +109,9 @@ def send_message(request):
                     user_chat.bot_resp = bot_resp
                     user_chat.save()
 
-                    return HttpResponse(json.dumps({'content': bot_resp,
-                                                    'status': 200}),
+                    bot_http_msg = generate_bot_response(bot_resp)
+
+                    return HttpResponse(bot_http_msg,
                                         content_type='application/json'
                                         )
 
@@ -114,16 +124,19 @@ def send_message(request):
                             user_prefer = user.meta_data.get(user_quest_intent)
 
                             if all(item in user_prefer for item in dislike_ext_val[user_quest_intent]):
-                                return HttpResponse(json.dumps({'content': f"No, You like {','.join(user_prefer)}",
-                                                                'status': 200}),
-                                    content_type='application/json'
-                                )
+                                bot_ms = f"No, You like {','.join(user_prefer)}"
+                                user_chat.bot_resp = bot_msg
+                                user_chat.save()
+
+                                bot_http_msg = generate_bot_response(bot_resp_msg=bot_ms)
+                                return HttpResponse(bot_http_msg, content_type='application/json')
+
                             else:
                                 bot_resp = bot_msg.format(item=",".join(dislike_ext_val[user_quest_intent]))
                                 user_chat.bot_resp = bot_resp
                                 user_chat.save()
-                                return HttpResponse(json.dumps({'content': bot_resp,
-                                                                'status': 200}),
+                                bot_http_msg = generate_bot_response(bot_resp)
+                                return HttpResponse(bot_http_msg,
                                                     content_type='application/json'
                                                     )
 
@@ -137,45 +150,44 @@ def send_message(request):
                             user_chat.bot_resp = bot_resp
                             user_chat.save()
 
-                            return HttpResponse(json.dumps({'content': bot_resp,
-                                                            'status': 200}),
+                            bot_http_msg = generate_bot_response(bot_resp)
+
+                            return HttpResponse(bot_http_msg,
                                                 content_type='application/json'
                                                 )
                         else:
                             bot_resp = f"Dear {user.user_name}, you have not given me any your favourite {query_intent} details"
                             user_chat.bot_resp = bot_resp
                             user_chat.save()
-                            return HttpResponse(
-                                json.dumps({
-                                               'content': bot_resp,
-                                               'status': 200}),
-                                content_type='application/json'
-                            )
+
+                            bot_http_mg = generate_bot_response(bot_resp)
+                            return HttpResponse(bot_http_mg,
+                                        content_type='application/json'
+                                        )
                     else:
                         bot_resp = f"Dear {user.user_name}, I don't know you very much. tell me about yourself more !!"
                         user_chat.bot_resp = bot_resp
                         user_chat.save()
 
-                        return HttpResponse(
-                            json.dumps({'content': bot_resp,
-                                        'status': 200}),
-                            content_type='application/json'
-                            )
+                        bot_http = generate_bot_response(bot_resp)
+
+                        return HttpResponse(bot_http, content_type='application/json')
 
                 else:
                     bot_resp = "Sorry, I am unable to understand your question. Plz try again"
                     user_chat.bot_resp = bot_resp
                     user_chat.save()
-                    return HttpResponse({'content': bot_resp,
-                                                'status': 200 },
+
+                    bot_http_reply = generate_bot_response(bot_resp)
+                    return HttpResponse(bot_http_reply,
                                         content_type='application/json'
                                         )
             else:
                 bot_resp = "Please check your message !!"
                 user_chat.bot_resp = bot_resp
                 user_chat.save()
-                return HttpResponse({'content': bot_resp,
-                                            'status': 200},
+                bot_http_rp = generate_bot_response(bot_resp)
+                return HttpResponse(bot_http_rp,
                                     content_type='application/json'
                                     )
         else:

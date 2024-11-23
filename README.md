@@ -10,6 +10,9 @@ Spacy 3.8.2
 pinecone==5.4.0
 database - sqlite
 
+### Block Diagram
+
+[View Diagram](block_diagram.pdf)
 
 ### Project Set-Up
 1. Clone the repository
